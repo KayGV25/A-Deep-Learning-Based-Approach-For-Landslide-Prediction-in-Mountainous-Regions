@@ -1,1 +1,2 @@
-"# A-Deep-Learning-Based-Approach-For-Landslide-Prediction-in-Mountainous-Regions" 
+# A-Deep-Learning-Based-Approach-For-Landslide-Prediction-in-Mountainous-Regions
+- Dataset access should be access via: [link](https://kaggle.com/datasets/b804a2141bb7f1d2c62af328490def2e8b3c4df84ab3676f363ef9db24420cce)
