@@ -17,7 +17,7 @@ from tqdm import tqdm
 import math
 from collections import Counter
 import os
-from sampling import make_weighted_random_sampler
+from sampling import MinorityClassAugmentedDataset, make_weighted_random_sampler
 
 IMG_SIZE = 224
 BATCH_SIZE = 96 
@@ -26,6 +26,7 @@ NUM_CLASSES = 3
 EPOCHS = 60
 SEED = 42
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+MINORITY_AUGMENT_PROBABILITY = 0.85
 
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
@@ -2158,8 +2159,37 @@ train_idx, val_idx = train_test_split(
     stratify=y          # IMPORTANT: keep class balance
 )
 
-train_dataset = Subset(full_dataset, train_idx)
-val_dataset   = Subset(full_dataset, val_idx)
+def augment_minority_sample(x):
+    x = x.clone()
+    original_min = float(x.amin())
+    original_max = float(x.amax())
+
+    if torch.rand(()) < 0.5:
+        x = torch.flip(x, dims=[2])
+    if torch.rand(()) < 0.3:
+        x = torch.flip(x, dims=[1])
+    if torch.rand(()) < 0.3:
+        brightness = 1.0 + (torch.rand(()) * 0.2 - 0.1)
+        x = x * brightness
+    if torch.rand(()) < 0.3:
+        contrast = 1.0 + (torch.rand(()) * 0.2 - 0.1)
+        mean = x.mean(dim=(1, 2), keepdim=True)
+        x = (x - mean) * contrast + mean
+    if torch.rand(()) < 0.2 and original_max > original_min:
+        noise_std = (original_max - original_min) * 0.01
+        x = x + torch.randn_like(x) * noise_std
+
+    return x.clamp(min=original_min, max=original_max)
+
+train_subset = Subset(full_dataset, train_idx)
+train_labels = [int(y[idx]) for idx in train_idx]
+train_dataset = MinorityClassAugmentedDataset(
+    train_subset,
+    labels=train_labels,
+    augment_fn=augment_minority_sample,
+    augment_probability=MINORITY_AUGMENT_PROBABILITY,
+)
+val_dataset = Subset(full_dataset, val_idx)
 
 def tta_predict(model, x):
     model.eval()  # ensure BN/dropout stable
