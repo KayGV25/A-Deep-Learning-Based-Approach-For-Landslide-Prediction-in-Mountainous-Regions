@@ -17,6 +17,7 @@ from tqdm import tqdm
 import math
 from collections import Counter
 import os
+from sampling import make_weighted_random_sampler
 
 IMG_SIZE = 224
 BATCH_SIZE = 96 
@@ -3291,10 +3292,17 @@ for model_name in model_names:
 
     # -------- DataLoaders --------
 
+    train_sampler = make_weighted_random_sampler(
+        y_array=y,
+        indices=train_idx,
+        num_classes=NUM_CLASSES,
+        seed=SEED,
+    )
+
     train_loader = DataLoader(
         train_dataset,
         batch_size=BATCH_SIZE,
-        shuffle=True,
+        sampler=train_sampler,
         num_workers=NUM_WORKERS,
         pin_memory=True,
         persistent_workers=True,
