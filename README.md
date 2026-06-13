@@ -2,7 +2,7 @@
 
 This project trains PyTorch image classification models for landslide prediction. The training script expects a preprocessed NumPy memmap dataset created from the notebooks.
 
-Dataset access: [Final dataset](https://mailbcuac-my.sharepoint.com/:u:/g/personal/dang_vu2_mail_bcu_ac_uk/IQDeQTfCXsSVTI9t8kIQtq__AQ6dUc7wEDCz-xlOUl_3tfA?e=2nzOVC)
+Dataset access: [Final dataset](https://mailbcuac-my.sharepoint.com/:u:/g/personal/dang_vu2_mail_bcu_ac_uk/IQDQo1nJit0iTJLyS1kDQjnTAWymfqJof6lh1Jm9g8OVjKg?e=RDCtx6)
 
 For running the preprocssing please install these followig dataset:
 - [LMHLD](https://zenodo.org/records/17258777/files/LMHLD.rar?download=1)
